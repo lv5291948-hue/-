@@ -1,0 +1,62 @@
+{
+  "version": 4,
+  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "content": {
+    "heroTitle": "把智能、品牌与视觉体验做得清晰而有质感。",
+    "heroLead": "从品牌策略到生成式视觉，从产品界面到传播素材，我把复杂想法整理成可感知、可落地、可传播的设计。",
+    "intro": "擅长品牌视觉、产品界面、AI 生成流程和商业化视觉表达。能在早期概念、系统搭建和最终交付之间保持一致的审美与效率。",
+    "email": "hello@example.com",
+    "phone": "+86 138 0000 0000",
+    "accent": "#0071e3",
+    "textColor": "#111111",
+    "heroImage": "assets/hero-bg.jpg",
+    "portrait": "assets/portrait.png",
+    "advantagesTitle": "能独立完成从概念到交付的视觉闭环。",
+    "strengths": [
+      {
+        "title": "品牌视觉系统",
+        "copy": "快速定义方向，建立可复用规范，并把结果推进到真实上线场景。"
+      },
+      {
+        "title": "AI 图像工作流",
+        "copy": "把生成式工具纳入稳定流程，让创意探索更快、更一致。"
+      },
+      {
+        "title": "产品界面美术",
+        "copy": "用清晰层级和克制视觉，让复杂信息变得容易理解。"
+      },
+      {
+        "title": "动效与叙事",
+        "copy": "用节奏、转场和视觉线索，强化品牌记忆与内容表达。"
+      }
+    ],
+    "closingEyebrow": "Let’s Build",
+    "closingTitle": "需要一个更像产品发布页的作品集？我们可以从这里继续。",
+    "projects": [
+      {
+        "title": "AI 品牌生成系统",
+        "type": "Brand System / AI Workflow",
+        "image": "assets/project-01.png",
+        "cover": "assets/project-01.png",
+        "fileType": "image",
+        "copy": "把品牌关键词、视觉语言和生成式图像流程收束成可复用的设计系统。"
+      },
+      {
+        "title": "科技产品发布视觉",
+        "type": "Campaign / Motion Direction",
+        "image": "assets/project-02.png",
+        "cover": "assets/project-02.png",
+        "fileType": "image",
+        "copy": "面向发布会与线上传播，建立高辨识度的深色视觉叙事。"
+      },
+      {
+        "title": "智能硬件体验界面",
+        "type": "UI / Visual Design",
+        "image": "assets/project-03.png",
+        "cover": "assets/project-03.png",
+        "fileType": "image",
+        "copy": "以低噪声信息层级和精致动效，让复杂数据更容易被理解。"
+      }
+    ]
+  }
+}

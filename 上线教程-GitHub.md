@@ -75,7 +75,7 @@ https://你的用户名.github.io/仓库名/
 https://lv5291948-hue.github.io/personal-portfolio-display/
 ```
 
-## 四、以后怎么更新网页
+## 四、以后怎么更新代码
 
 1. 回到这个文件夹修改代码或内容：
 
@@ -94,7 +94,55 @@ https://lv5291948-hue.github.io/personal-portfolio-display/
 5. 点击 `Push origin`。
 6. GitHub Actions 会自动重新部署网页。
 
-## 五、命令行方式，可选
+## 五、编辑页直接同步上线
+
+这个方式适合日常改文字、换图片、上传作品和 PDF，不需要每次打开代码。
+
+1. 打开你的线上网页。
+2. 进入编辑页：
+
+   ```text
+   https://你的用户名.github.io/仓库名/editor
+   ```
+
+3. 输入编辑页密码：
+
+   ```text
+   LvHaiTao19990724
+   ```
+
+4. 修改文字、颜色、封面、作品图片或 PDF。
+5. 滑到编辑页底部的 `同步上线`。
+6. 填写 GitHub 用户名、仓库名和分支。分支一般是：
+
+   ```text
+   main
+   ```
+
+7. 填写 GitHub Token。
+
+Token 创建方式：
+
+1. 打开 GitHub，进入 `Settings`。
+2. 进入 `Developer settings`。
+3. 进入 `Personal access tokens`。
+4. 推荐选择 `Fine-grained tokens`。
+5. 只选择你的网页仓库。
+6. 权限里把 `Repository permissions > Contents` 设置为 `Read and write`。
+7. 生成 Token 后复制，粘贴到编辑页的 `GitHub Token` 输入框。
+
+注意：Token 不会保存在网页里，只用于这一次同步。不要把 Token 发给别人。
+
+点击 `同步上线` 后，网页会把当前内容写入仓库的：
+
+```text
+public/data/content.json
+public/data/assets/
+```
+
+同步成功后，到 GitHub 仓库的 `Actions` 页面等待部署完成，线上网页会自动更新。
+
+## 六、命令行方式，可选
 
 如果你安装了 GitHub CLI，也可以用命令行上传：
 
@@ -106,10 +154,11 @@ gh repo create personal-portfolio-display --public --source . --remote origin --
 
 然后到 GitHub 仓库的 `Settings > Pages`，选择 `GitHub Actions`。
 
-## 六、注意
+## 七、注意
 
 - 不要上传 `node_modules`，项目已经通过 `.gitignore` 排除了。
 - `dist` 不需要手动上传，GitHub Actions 会自动构建。
+- 日常只改作品内容时，优先用编辑页底部的 `同步上线`。
 - 编辑页密码是：
 
   ```text
