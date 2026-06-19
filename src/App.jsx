@@ -31,18 +31,25 @@ const initialProjects = [
 ];
 
 const initialContent = {
-  version: 4,
-  heroTitle: '把智能、品牌与视觉体验做得清晰而有质感。',
+  version: 5,
+  heroTitle: '把智能与品牌视觉结合的体验，让品牌得清晰而有质感。',
   heroLead:
-    '从品牌策略到生成式视觉，从产品界面到传播素材，我把复杂想法整理成可感知、可落地、可传播的设计。',
+    '从品牌策略到式视觉，从产品界面到传播素材，我把复杂想法整理成可感知、可落地、可传播的设计。',
   intro:
-    '擅长品牌视觉、产品界面、AI 生成流程和商业化视觉表达。能在早期概念、系统搭建和最终交付之间保持一致的审美与效率。',
-  email: 'hello@example.com',
-  phone: '+86 138 0000 0000',
+    '擅长品牌视觉、品牌基础策略、AI大数据流程来表达商业化视觉。能在早期概念、系统搭建和最终交付，都是顾客审美与表达。',
+  email: '3112149714@qq.com',
+  phone: '+86 17573901570',
   accent: '#0071e3',
-  textColor: '#111111',
+  textColor: '#ffffff',
   heroImage: assetPath('assets/hero-bg.jpg'),
   portrait: assetPath('assets/portrait.png'),
+  profileEyebrow: 'Profile',
+  profileTitle: '视觉设计师，正在把 AI 变成稳定的设计生产力。',
+  profileMetrics: [
+    { value: '36+', label: '商业项目' },
+    { value: '12', label: '品牌系统' },
+    { value: '3', label: '精选作品' },
+  ],
   advantagesTitle: '能独立完成从概念到交付的视觉闭环。',
   strengths: [
     {
@@ -73,8 +80,6 @@ const MAX_PROJECT_IMAGES = 32;
 const ASSET_PREFIX = 'portfolio-asset:';
 const ASSET_DB_NAME = 'portfolio-assets';
 const ASSET_STORE_NAME = 'files';
-const REMOTE_CONTENT_PATH = 'data/content.json';
-const GITHUB_API_VERSION = '2022-11-28';
 
 function normalizeProject(project) {
   const isPdf = project.fileType === 'pdf' || project.image?.startsWith('data:application/pdf');
@@ -113,6 +118,16 @@ function normalizeStrengths(strengths) {
   });
 }
 
+function normalizeProfileMetrics(metrics) {
+  const source = Array.isArray(metrics) && metrics.length
+    ? metrics
+    : initialContent.profileMetrics;
+  return initialContent.profileMetrics.map((fallback, index) => ({
+    value: String(source[index]?.value ?? fallback.value),
+    label: source[index]?.label || fallback.label,
+  }));
+}
+
 function normalizeContent(content) {
   const source = content?.content || content || {};
   return {
@@ -121,6 +136,7 @@ function normalizeContent(content) {
     version: initialContent.version,
     projects: (source.projects || initialProjects).map(normalizeProject),
     strengths: normalizeStrengths(source.strengths),
+    profileMetrics: normalizeProfileMetrics(source.profileMetrics),
   };
 }
 
@@ -386,234 +402,6 @@ async function countPdfPagesFromFile(file) {
   }
 }
 
-function sanitizeFileSegment(value, fallback = 'asset') {
-  const safe = String(value || '')
-    .replace(/\.[a-z0-9]+$/i, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 48);
-  return safe || fallback;
-}
-
-function hashString(value) {
-  let hash = 0;
-  for (let i = 0; i < value.length; i += 1) {
-    hash = (hash * 31 + value.charCodeAt(i)) >>> 0;
-  }
-  return hash.toString(36);
-}
-
-function extensionFromType(type, name = '') {
-  const fileExt = name.match(/\.([a-z0-9]+)$/i)?.[1]?.toLowerCase();
-  if (fileExt) return fileExt === 'jpeg' ? 'jpg' : fileExt;
-
-  const map = {
-    'application/pdf': 'pdf',
-    'image/jpeg': 'jpg',
-    'image/png': 'png',
-    'image/webp': 'webp',
-    'image/gif': 'gif',
-    'image/svg+xml': 'svg',
-  };
-  return map[type] || type?.split('/')[1]?.replace(/[^a-z0-9]/gi, '') || 'bin';
-}
-
-function dataUrlToBlob(dataUrl) {
-  const commaIndex = dataUrl.indexOf(',');
-  if (commaIndex === -1) return null;
-  const meta = dataUrl.slice(0, commaIndex);
-  const payload = dataUrl.slice(commaIndex + 1);
-  const type = meta.match(/^data:([^;,]+)/)?.[1] || 'application/octet-stream';
-  const binary = meta.includes(';base64') ? atob(payload) : decodeURIComponent(payload);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i += 1) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return new Blob([bytes], { type });
-}
-
-async function blobToBase64(blob) {
-  const dataUrl = await readFileAsDataUrl(blob);
-  return String(dataUrl).split(',')[1] || '';
-}
-
-function textToBase64(text) {
-  const bytes = new TextEncoder().encode(text);
-  let binary = '';
-  const chunkSize = 8192;
-  for (let i = 0; i < bytes.length; i += chunkSize) {
-    binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize));
-  }
-  return btoa(binary);
-}
-
-function encodeGitHubPath(path) {
-  return path.split('/').map(encodeURIComponent).join('/');
-}
-
-function cleanGitHubSettings(settings) {
-  return {
-    owner: settings.owner.trim(),
-    repo: settings.repo.trim(),
-    branch: settings.branch.trim() || 'main',
-    token: settings.token.trim(),
-  };
-}
-
-async function githubJson(settings, path, options = {}) {
-  const { allowNotFound = false, query = '', ...requestOptions } = options;
-  const url = `https://api.github.com/repos/${encodeURIComponent(settings.owner)}/${encodeURIComponent(settings.repo)}/contents/${encodeGitHubPath(path)}${query}`;
-  const response = await fetch(url, {
-    ...requestOptions,
-    headers: {
-      Accept: 'application/vnd.github+json',
-      Authorization: `Bearer ${settings.token}`,
-      'X-GitHub-Api-Version': GITHUB_API_VERSION,
-      ...(requestOptions.headers || {}),
-    },
-  });
-  const text = await response.text();
-  const payload = text ? JSON.parse(text) : null;
-
-  if (allowNotFound && response.status === 404) return null;
-  if (!response.ok) {
-    throw new Error(payload?.message || `GitHub 请求失败（${response.status}）`);
-  }
-  return payload;
-}
-
-async function getGitHubFileSha(settings, path) {
-  const payload = await githubJson(settings, path, {
-    allowNotFound: true,
-    method: 'GET',
-    query: `?ref=${encodeURIComponent(settings.branch)}`,
-  });
-  return payload?.sha;
-}
-
-async function putGitHubFile(settings, path, base64Content, message) {
-  const sha = await getGitHubFileSha(settings, path);
-  return githubJson(settings, path, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      message,
-      content: base64Content,
-      branch: settings.branch,
-      ...(sha ? { sha } : {}),
-    }),
-  });
-}
-
-async function publishAsset(src, settings, context) {
-  if (!src || (!isAssetRef(src) && !src.startsWith('data:'))) return src;
-  if (context.cache.has(src)) return context.cache.get(src);
-
-  let blob = null;
-  let name = context.label || 'asset';
-  let type = '';
-  let fingerprint = hashString(src);
-
-  if (isAssetRef(src)) {
-    const record = await getAssetRecord(src);
-    if (!record?.blob) {
-      throw new Error(`资源文件未找到：${context.label || 'asset'}。请重新上传这个文件后再同步。`);
-    }
-    blob = record.blob;
-    name = record.name || name;
-    type = record.type || blob.type;
-    fingerprint = sanitizeFileSegment(record.id || fingerprint, fingerprint).slice(0, 24);
-  } else {
-    blob = dataUrlToBlob(src);
-    if (!blob) {
-      throw new Error(`资源文件无法读取：${context.label || 'asset'}。请重新上传这个文件后再同步。`);
-    }
-    type = blob.type;
-  }
-
-  const extension = extensionFromType(type, name);
-  const baseName = sanitizeFileSegment(name || context.label);
-  const fileName = `${baseName}-${fingerprint}.${extension}`;
-  const publicPath = `data/assets/${fileName}`;
-
-  context.onStatus?.(`正在上传资源：${fileName}`);
-  await putGitHubFile(
-    settings,
-    `public/${publicPath}`,
-    await blobToBase64(blob),
-    `Publish portfolio asset: ${fileName}`,
-  );
-
-  context.cache.set(src, publicPath);
-  return publicPath;
-}
-
-async function prepareContentForPublish(content, settings, onStatus) {
-  const published = normalizeContent(content);
-  const context = { cache: new Map(), onStatus };
-
-  published.heroImage = await publishAsset(published.heroImage, settings, {
-    ...context,
-    label: 'hero-image',
-  });
-  published.portrait = await publishAsset(published.portrait, settings, {
-    ...context,
-    label: 'portrait',
-  });
-
-  published.projects = [];
-  for (const project of normalizeContent(content).projects) {
-    const nextProject = { ...project };
-    nextProject.image = await publishAsset(nextProject.image, settings, {
-      ...context,
-      label: `${nextProject.title || 'project'}-file`,
-    });
-    nextProject.cover = await publishAsset(nextProject.cover, settings, {
-      ...context,
-      label: `${nextProject.title || 'project'}-cover`,
-    });
-    nextProject.images = [];
-    for (const [index, image] of (project.images || []).entries()) {
-      nextProject.images.push(await publishAsset(image, settings, {
-        ...context,
-        label: `${nextProject.title || 'project'}-${index + 1}`,
-      }));
-    }
-    if (nextProject.fileType !== 'pdf' && nextProject.images.length) {
-      nextProject.image = nextProject.images[0];
-    }
-    published.projects.push(normalizeProject(nextProject));
-  }
-
-  return published;
-}
-
-async function syncContentToGitHub(rawSettings, content, onStatus) {
-  const settings = cleanGitHubSettings(rawSettings);
-  if (!settings.owner || !settings.repo || !settings.token) {
-    throw new Error('请填写 GitHub 用户名、仓库名和 Token。');
-  }
-
-  onStatus?.('正在整理可上线内容...');
-  const published = await prepareContentForPublish(content, settings, onStatus);
-  const payload = {
-    version: initialContent.version,
-    updatedAt: new Date().toISOString(),
-    content: published,
-  };
-
-  onStatus?.('正在写入线上内容文件...');
-  await putGitHubFile(
-    settings,
-    `public/${REMOTE_CONTENT_PATH}`,
-    textToBase64(JSON.stringify(payload, null, 2)),
-    'Update portfolio online content',
-  );
-
-  return payload;
-}
-
 function singlePagePdfUrl(src, page) {
   return `${src.split('#')[0]}#page=${page}&view=FitH&toolbar=0&navpanes=0&scrollbar=0`;
 }
@@ -763,7 +551,6 @@ function App() {
   const [selected, setSelected] = useState(0);
   const [saveError, setSaveError] = useState('');
   const isEditor = window.location.pathname.replace(/\/+$/, '').endsWith('/editor');
-  const hasStoredContent = useRef(Boolean(localStorage.getItem('portfolio-content')));
   const [editorUnlocked, setEditorUnlocked] = useState(
     () => sessionStorage.getItem(EDITOR_UNLOCK_KEY) === 'true',
   );
@@ -778,29 +565,10 @@ function App() {
   });
 
   useEffect(() => {
-    if (hasStoredContent.current) return undefined;
-
-    let active = true;
-    fetch(`${import.meta.env.BASE_URL}${REMOTE_CONTENT_PATH}?t=${Date.now()}`, { cache: 'no-store' })
-      .then((response) => (response.ok ? response.json() : null))
-      .then((payload) => {
-        if (active && payload) {
-          setContent(normalizeContent(payload));
-        }
-      })
-      .catch(() => {});
-
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  useEffect(() => {
     if (!isEditor) return;
 
     try {
       localStorage.setItem('portfolio-content', JSON.stringify(content));
-      hasStoredContent.current = true;
       setSaveError('');
     } catch {
       setSaveError('浏览器本地存储空间不足，当前改动可继续编辑，但可能无法完整保存。建议重新上传较小文件或减少大文件数量。');
@@ -819,6 +587,13 @@ function App() {
     setContent((current) => ({
       ...current,
       strengths: current.strengths.map((item, i) =>
+        i === index ? { ...item, ...patch } : item,
+      ),
+    }));
+  const updateProfileMetric = (index, patch) =>
+    setContent((current) => ({
+      ...current,
+      profileMetrics: current.profileMetrics.map((item, i) =>
         i === index ? { ...item, ...patch } : item,
       ),
     }));
@@ -875,6 +650,7 @@ function App() {
         setDraftProject={setDraftProject}
         update={update}
         updateProject={updateProject}
+        updateProfileMetric={updateProfileMetric}
         updateStrength={updateStrength}
       />
     );
@@ -1026,8 +802,8 @@ function HomePage({ activeProject, content, setSelected }) {
 
         <section className="profile section" id="profile">
           <SlideIn>
-            <p className="eyebrow">Profile</p>
-            <h2>视觉设计师，正在把 AI 变成稳定的设计生产力。</h2>
+            <p className="eyebrow">{content.profileEyebrow}</p>
+            <h2>{content.profileTitle}</h2>
             <p>{content.intro}</p>
             <button className="text-link contact-text-button" type="button" onClick={openEmail}>
               {content.email}
@@ -1035,9 +811,12 @@ function HomePage({ activeProject, content, setSelected }) {
           </SlideIn>
           <SlideIn as="img" src={content.portrait} alt="设计师人物视觉" delay={140} />
           <SlideIn className="metrics" aria-label="项目数据" delay={220}>
-            <strong>36+</strong><span>商业项目</span>
-            <strong>12</strong><span>品牌系统</span>
-            <strong>{content.projects.length}</strong><span>精选作品</span>
+            {content.profileMetrics.map((metric, index) => (
+              <React.Fragment key={`profile-metric-${index}`}>
+                <strong>{metric.value}</strong>
+                <span>{metric.label}</span>
+              </React.Fragment>
+            ))}
           </SlideIn>
         </section>
 
@@ -1118,57 +897,10 @@ function EditorPage({
   saveError,
   setDraftProject,
   update,
+  updateProfileMetric,
   updateProject,
   updateStrength,
 }) {
-  const [syncSettings, setSyncSettings] = useState(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem('github-sync-settings')) || {};
-      return {
-        owner: '',
-        repo: 'personal-portfolio-display',
-        branch: 'main',
-        ...saved,
-        token: '',
-      };
-    } catch {
-      return {
-        owner: '',
-        repo: 'personal-portfolio-display',
-        branch: 'main',
-        token: '',
-      };
-    }
-  });
-  const [syncState, setSyncState] = useState({ status: 'idle', message: '' });
-
-  useEffect(() => {
-    const { token, ...safeSettings } = syncSettings;
-    localStorage.setItem('github-sync-settings', JSON.stringify(safeSettings));
-  }, [syncSettings.owner, syncSettings.repo, syncSettings.branch]);
-
-  const updateSyncSetting = (key, value) => {
-    setSyncSettings((current) => ({ ...current, [key]: value }));
-  };
-
-  const publishOnline = async () => {
-    setSyncState({ status: 'working', message: '正在准备同步上线...' });
-    try {
-      await syncContentToGitHub(syncSettings, content, (message) => {
-        setSyncState({ status: 'working', message });
-      });
-      setSyncState({
-        status: 'success',
-        message: '已同步到 GitHub。等待 Actions 部署完成后，线上网页会自动更新。',
-      });
-    } catch (error) {
-      setSyncState({
-        status: 'error',
-        message: error?.message || '同步失败，请检查仓库、分支和 Token 权限。',
-      });
-    }
-  };
-
   return (
     <>
       <Nav editor />
@@ -1189,14 +921,6 @@ function EditorPage({
               <textarea value={content.heroLead} onChange={(e) => update('heroLead', e.target.value)} />
             </label>
             <label>
-              个人介绍
-              <textarea value={content.intro} onChange={(e) => update('intro', e.target.value)} />
-            </label>
-            <label>
-              邮箱
-              <input value={content.email} onChange={(e) => update('email', e.target.value)} />
-            </label>
-            <label>
               电话
               <input value={content.phone} onChange={(e) => update('phone', e.target.value)} />
             </label>
@@ -1212,10 +936,60 @@ function EditorPage({
               替换首页背景
               <input type="file" accept="image/*" onChange={(e) => readFile(e.target.files[0], (file) => update('heroImage', file.image))} />
             </label>
+          </div>
+
+          <div className="editor-block">
+            <div className="section-head">
+              <p className="eyebrow">Profile</p>
+              <h3>个人经历模块</h3>
+            </div>
+            <label>
+              模块小标题
+              <input
+                value={content.profileEyebrow}
+                onChange={(e) => update('profileEyebrow', e.target.value)}
+              />
+            </label>
+            <label>
+              主标题
+              <textarea
+                value={content.profileTitle}
+                onChange={(e) => update('profileTitle', e.target.value)}
+              />
+            </label>
+            <label>
+              个人介绍
+              <textarea value={content.intro} onChange={(e) => update('intro', e.target.value)} />
+            </label>
+            <label>
+              展示邮箱
+              <input value={content.email} onChange={(e) => update('email', e.target.value)} />
+            </label>
             <label>
               替换头像
-              <input type="file" accept="image/*" onChange={(e) => readFile(e.target.files[0], (file) => update('portrait', file.image))} />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => readFile(e.target.files[0], (file) => update('portrait', file.image))}
+              />
             </label>
+            <div className="profile-metrics-editor">
+              {content.profileMetrics.map((metric, index) => (
+                <article key={`profile-metric-edit-${index}`}>
+                  <small>数据 {index + 1}</small>
+                  <input
+                    aria-label={`数据 ${index + 1} 数值`}
+                    value={metric.value}
+                    onChange={(e) => updateProfileMetric(index, { value: e.target.value })}
+                  />
+                  <input
+                    aria-label={`数据 ${index + 1} 名称`}
+                    value={metric.label}
+                    onChange={(e) => updateProfileMetric(index, { label: e.target.value })}
+                  />
+                </article>
+              ))}
+            </div>
           </div>
 
           <div className="project-editor">
@@ -1367,67 +1141,6 @@ function EditorPage({
             </label>
           </div>
 
-          <div className="editor-block sync-panel">
-            <div className="section-head">
-              <p className="eyebrow">Online Sync</p>
-              <h3>同步上线</h3>
-            </div>
-            <p className="sync-note">
-              将当前编辑内容、封面、作品图片和 PDF 写入 GitHub 仓库，随后由 GitHub Pages 自动部署成线上版本。
-            </p>
-            <div className="sync-grid">
-              <label>
-                GitHub 用户名或组织
-                <input
-                  placeholder="例如 lv5291948-hue"
-                  value={syncSettings.owner}
-                  onChange={(e) => updateSyncSetting('owner', e.target.value)}
-                />
-              </label>
-              <label>
-                仓库名
-                <input
-                  placeholder="personal-portfolio-display"
-                  value={syncSettings.repo}
-                  onChange={(e) => updateSyncSetting('repo', e.target.value)}
-                />
-              </label>
-              <label>
-                分支
-                <input
-                  placeholder="main"
-                  value={syncSettings.branch}
-                  onChange={(e) => updateSyncSetting('branch', e.target.value)}
-                />
-              </label>
-              <label>
-                GitHub Token
-                <input
-                  autoComplete="off"
-                  placeholder="只在本次同步中使用，不会保存"
-                  type="password"
-                  value={syncSettings.token}
-                  onChange={(e) => updateSyncSetting('token', e.target.value)}
-                />
-              </label>
-            </div>
-            <p className="file-summary">
-              Token 需要当前仓库 Contents 读写权限。同步成功后，到 GitHub 仓库 Actions 等待部署完成。
-            </p>
-            <button
-              className="button primary"
-              disabled={syncState.status === 'working'}
-              type="button"
-              onClick={publishOnline}
-            >
-              {syncState.status === 'working' ? '同步中...' : '同步上线'}
-            </button>
-            {syncState.message && (
-              <p className={`sync-status ${syncState.status}`}>
-                {syncState.message}
-              </p>
-            )}
-          </div>
         </section>
       </main>
     </>
