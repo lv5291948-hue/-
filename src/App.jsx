@@ -28,6 +28,27 @@ const initialProjects = [
     fileType: 'image',
     copy: '以低噪声信息层级和精致动效，让复杂数据更容易被理解。',
   },
+  {
+    title: '123',
+    type: '132',
+    image: assetPath('assets/project-04/page-01.png'),
+    images: [
+      assetPath('assets/project-04/page-01.png'),
+      assetPath('assets/project-04/page-02.png'),
+      assetPath('assets/project-04/page-03.png'),
+      assetPath('assets/project-04/page-04.png'),
+      assetPath('assets/project-04/page-05.png'),
+      assetPath('assets/project-04/page-06.png'),
+      assetPath('assets/project-04/page-07.png'),
+      assetPath('assets/project-04/page-08.png'),
+      assetPath('assets/project-04/page-09.png'),
+      assetPath('assets/project-04/page-10.png'),
+      assetPath('assets/project-04/page-11.png'),
+    ],
+    cover: assetPath('assets/project-04/cover.png'),
+    fileType: 'images',
+    copy: '132',
+  },
 ];
 
 const initialContent = {
