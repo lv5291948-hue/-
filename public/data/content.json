@@ -1,16 +1,17 @@
 {
   "version": 4,
-  "updatedAt": "2026-06-19T00:00:00.000Z",
+  "updatedAt": "2026-06-19T12:16:40.739Z",
   "content": {
+    "version": 4,
     "heroTitle": "把智能、品牌与视觉体验做得清晰而有质感。",
     "heroLead": "从品牌策略到生成式视觉，从产品界面到传播素材，我把复杂想法整理成可感知、可落地、可传播的设计。",
     "intro": "擅长品牌视觉、产品界面、AI 生成流程和商业化视觉表达。能在早期概念、系统搭建和最终交付之间保持一致的审美与效率。",
-    "email": "hello@example.com",
-    "phone": "+86 138 0000 0000",
+    "email": "3112149714@qq.com",
+    "phone": "+86 17573901570",
     "accent": "#0071e3",
-    "textColor": "#111111",
-    "heroImage": "assets/hero-bg.jpg",
-    "portrait": "assets/portrait.png",
+    "textColor": "#ffffff",
+    "heroImage": "./assets/hero-bg.jpg",
+    "portrait": "./assets/portrait.png",
     "advantagesTitle": "能独立完成从概念到交付的视觉闭环。",
     "strengths": [
       {
@@ -36,26 +37,64 @@
       {
         "title": "AI 品牌生成系统",
         "type": "Brand System / AI Workflow",
-        "image": "assets/project-01.png",
-        "cover": "assets/project-01.png",
+        "image": "./assets/project-01.png",
+        "cover": "./assets/project-01.png",
         "fileType": "image",
-        "copy": "把品牌关键词、视觉语言和生成式图像流程收束成可复用的设计系统。"
+        "copy": "把品牌关键词、视觉语言和生成式图像流程收束成可复用的设计系统。",
+        "images": [
+          "./assets/project-01.png"
+        ]
       },
       {
         "title": "科技产品发布视觉",
         "type": "Campaign / Motion Direction",
-        "image": "assets/project-02.png",
-        "cover": "assets/project-02.png",
+        "image": "./assets/project-02.png",
+        "cover": "./assets/project-02.png",
         "fileType": "image",
-        "copy": "面向发布会与线上传播，建立高辨识度的深色视觉叙事。"
+        "copy": "面向发布会与线上传播，建立高辨识度的深色视觉叙事。",
+        "images": [
+          "./assets/project-02.png"
+        ]
       },
       {
         "title": "智能硬件体验界面",
         "type": "UI / Visual Design",
-        "image": "assets/project-03.png",
-        "cover": "assets/project-03.png",
+        "image": "./assets/project-03.png",
+        "cover": "./assets/project-03.png",
         "fileType": "image",
-        "copy": "以低噪声信息层级和精致动效，让复杂数据更容易被理解。"
+        "copy": "以低噪声信息层级和精致动效，让复杂数据更容易被理解。",
+        "images": [
+          "./assets/project-03.png"
+        ]
+      },
+      {
+        "title": "123",
+        "type": "132",
+        "copy": "13213",
+        "image": "data/assets/chatgpt-image-2026-6-7-23-55-18-1781868996179-2bbefb8d-3.png",
+        "images": [
+          "data/assets/chatgpt-image-2026-6-7-23-55-18-1781868996179-2bbefb8d-3.png",
+          "data/assets/asset-1781868996182-2c944c1a-5.png",
+          "data/assets/asset-1781868996186-098707a3-9.png",
+          "data/assets/chatgpt-image-2026-6-7-16-01-03-1781868996189-636fc1ec-0.png",
+          "data/assets/chatgpt-image-2026-6-7-15-15-06-1781868996192-fe278c48-1.png",
+          "data/assets/chatgpt-image-2026-6-7-15-15-00-1781868996195-eaafaae7-d.png",
+          "data/assets/chatgpt-image-2026-6-5-21-25-19-1781868996199-f0bf7282-9.png",
+          "data/assets/asset-1781868996202-7adaf71b-3.png",
+          "data/assets/chatgpt-image-2026-6-3-22-21-31-1781868996204-9f0689b0-7.png",
+          "data/assets/60630ba5-7d0c-4eb7-ba84-3786f7e28dd3-1781868996207-c545076b-3.png",
+          "data/assets/chatgpt-image-2026-6-3-21-33-05-1781868996210-d5740deb-7.png",
+          "data/assets/1-logo-1781868996214-73ee7554-c.jpg",
+          "data/assets/chatgpt-image-2026-6-2-21-09-54-1781868996217-ee904d67-5.png",
+          "data/assets/asset-1781868996220-515b03f3-8.png",
+          "data/assets/3-1781868996224-7bffad00-7.jpg",
+          "data/assets/chatgpt-image-2026-6-1-21-38-45-1-1781868996227-751e1e2c-8.png",
+          "data/assets/asset-1781868996230-67e38031-f.png",
+          "data/assets/3997-1781868996234-37754d65-7.jpg",
+          "data/assets/chatgpt-image-2026-6-1-21-38-45-1781868996236-7f189338-d.png"
+        ],
+        "cover": "data/assets/6eeda3de91b36e30ef7e8337b3573d23-1781868989106-db0f2987-d.jpg",
+        "fileType": "images"
       }
     ]
   }
