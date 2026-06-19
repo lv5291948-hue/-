@@ -1,97 +1,25 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import contentData from './content.json';
 
 const assetPath = (path) => `${import.meta.env.BASE_URL}${path.replace(/^\/+/, '')}`;
 const appHref = (path = '') => `${import.meta.env.BASE_URL}${path.replace(/^\/+/, '')}`;
 
-const initialProjects = [
-  {
-    title: 'AI 品牌生成系统',
-    type: 'Brand System / AI Workflow',
-    image: assetPath('assets/project-01.png'),
-    cover: assetPath('assets/project-01.png'),
-    fileType: 'image',
-    copy: '把品牌关键词、视觉语言和生成式图像流程收束成可复用的设计系统。',
-  },
-  {
-    title: '科技产品发布视觉',
-    type: 'Campaign / Motion Direction',
-    image: assetPath('assets/project-02.png'),
-    cover: assetPath('assets/project-02.png'),
-    fileType: 'image',
-    copy: '面向发布会与线上传播，建立高辨识度的深色视觉叙事。',
-  },
-  {
-    title: '智能硬件体验界面',
-    type: 'UI / Visual Design',
-    image: assetPath('assets/project-03.png'),
-    cover: assetPath('assets/project-03.png'),
-    fileType: 'image',
-    copy: '以低噪声信息层级和精致动效，让复杂数据更容易被理解。',
-  },
-  {
-    title: '123',
-    type: '132',
-    image: assetPath('assets/project-04/page-01.png'),
-    images: [
-      assetPath('assets/project-04/page-01.png'),
-      assetPath('assets/project-04/page-02.png'),
-      assetPath('assets/project-04/page-03.png'),
-      assetPath('assets/project-04/page-04.png'),
-      assetPath('assets/project-04/page-05.png'),
-      assetPath('assets/project-04/page-06.png'),
-      assetPath('assets/project-04/page-07.png'),
-      assetPath('assets/project-04/page-08.png'),
-      assetPath('assets/project-04/page-09.png'),
-      assetPath('assets/project-04/page-10.png'),
-      assetPath('assets/project-04/page-11.png'),
-    ],
-    cover: assetPath('assets/project-04/cover.png'),
-    fileType: 'images',
-    copy: '132',
-  },
-];
+const resolveContentAsset = (src) => {
+  if (!src || /^(?:data:|blob:|https?:|portfolio-asset:)/.test(src)) return src;
+  return assetPath(src.replace(/^\.\//, ''));
+};
+
+const initialProjects = contentData.projects.map((project) => ({
+  ...project,
+  image: resolveContentAsset(project.image),
+  cover: resolveContentAsset(project.cover),
+  images: (project.images || []).map(resolveContentAsset),
+}));
 
 const initialContent = {
-  version: 5,
-  heroTitle: '把智能与品牌视觉结合的体验，让品牌得清晰而有质感。',
-  heroLead:
-    '从品牌策略到式视觉，从产品界面到传播素材，我把复杂想法整理成可感知、可落地、可传播的设计。',
-  intro:
-    '擅长品牌视觉、品牌基础策略、AI大数据流程来表达商业化视觉。能在早期概念、系统搭建和最终交付，都是顾客审美与表达。',
-  email: '3112149714@qq.com',
-  phone: '+86 17573901570',
-  accent: '#0071e3',
-  textColor: '#ffffff',
-  heroImage: assetPath('assets/hero-bg.jpg'),
-  portrait: assetPath('assets/portrait.png'),
-  profileEyebrow: 'Profile',
-  profileTitle: '视觉设计师，正在把 AI 变成稳定的设计生产力。',
-  profileMetrics: [
-    { value: '36+', label: '商业项目' },
-    { value: '12', label: '品牌系统' },
-    { value: '3', label: '精选作品' },
-  ],
-  advantagesTitle: '能独立完成从概念到交付的视觉闭环。',
-  strengths: [
-    {
-      title: '品牌视觉系统',
-      copy: '快速定义方向，建立可复用规范，并把结果推进到真实上线场景。',
-    },
-    {
-      title: 'AI 图像工作流',
-      copy: '把生成式工具纳入稳定流程，让创意探索更快、更一致。',
-    },
-    {
-      title: '产品界面美术',
-      copy: '用清晰层级和克制视觉，让复杂信息变得容易理解。',
-    },
-    {
-      title: '动效与叙事',
-      copy: '用节奏、转场和视觉线索，强化品牌记忆与内容表达。',
-    },
-  ],
-  closingEyebrow: 'Let’s Build',
-  closingTitle: '需要一个更像产品发布页的作品集？我们可以从这里继续。',
+  ...contentData,
+  heroImage: resolveContentAsset(contentData.heroImage),
+  portrait: resolveContentAsset(contentData.portrait),
   projects: initialProjects,
 };
 
@@ -383,6 +311,33 @@ async function readProjectFiles(fileList, onLoad) {
     fileType: 'pdf',
     pageCount: await countPdfPagesFromFile(pdfFile),
   });
+}
+
+async function collectLocalAssets(content) {
+  const sources = [
+    content.heroImage,
+    content.portrait,
+    ...content.projects.flatMap((project) => [
+      project.image,
+      project.cover,
+      ...(project.images || []),
+    ]),
+  ];
+  const refs = [...new Set(sources.filter(isAssetRef))];
+  const assets = [];
+
+  for (const ref of refs) {
+    const record = await getAssetRecord(ref);
+    if (!record?.blob) throw new Error(`找不到本地资源：${record?.name || ref}`);
+    assets.push({
+      ref,
+      name: record.name || 'asset',
+      type: record.type || record.blob.type,
+      dataUrl: await readFileAsDataUrl(record.blob),
+    });
+  }
+
+  return assets;
 }
 
 function countPdfPages(src) {
@@ -922,6 +877,31 @@ function EditorPage({
   updateProject,
   updateStrength,
 }) {
+  const [localSaveState, setLocalSaveState] = useState({ status: 'idle', message: '' });
+
+  const saveToLocalProject = async () => {
+    setLocalSaveState({ status: 'working', message: '正在保存...' });
+    try {
+      const assets = await collectLocalAssets(content);
+      const response = await fetch('/__portfolio/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content, assets }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || '保存失败');
+      setLocalSaveState({
+        status: 'success',
+        message: `已写入 C:\\个人网页（${result.projects} 个作品）`,
+      });
+    } catch (error) {
+      setLocalSaveState({
+        status: 'error',
+        message: error?.message || '保存失败，请确认本地开发服务器正在运行。',
+      });
+    }
+  };
+
   return (
     <>
       <Nav editor />
@@ -932,6 +912,23 @@ function EditorPage({
             <h2>编辑内容。</h2>
           </div>
           {saveError && <p className="editor-alert">{saveError}</p>}
+          {import.meta.env.DEV && (
+            <div className="local-save-actions">
+              <button
+                className="button primary"
+                disabled={localSaveState.status === 'working'}
+                type="button"
+                onClick={saveToLocalProject}
+              >
+                {localSaveState.status === 'working' ? '保存中...' : '保存到本地项目'}
+              </button>
+              {localSaveState.message && (
+                <p className={`local-save-status ${localSaveState.status}`}>
+                  {localSaveState.message}
+                </p>
+              )}
+            </div>
+          )}
           <div className="editor-grid">
             <label>
               首页标题

@@ -17,4 +17,4 @@ npm run build
 
 ## 编辑内容
 
-进入 `/editor` 并输入编辑页密码。编辑结果保存在当前浏览器中；项目上线仍通过 Git 提交和 GitHub Actions 部署。
+进入 `/editor` 并输入编辑页密码。在本地开发服务器中点击“保存到本地项目”，文字、配色、作品和上传文件会写入 `src/content.json` 与 `public/assets/uploads/`。项目上线仍由你通过 Git 提交和部署。

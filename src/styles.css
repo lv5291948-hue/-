@@ -654,6 +654,27 @@ h1 {
   margin-bottom: 28px;
 }
 
+.local-save-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.local-save-status {
+  margin: 0;
+  color: #6e6e73;
+  font-weight: 700;
+}
+
+.local-save-status.success {
+  color: #006d2f;
+}
+
+.local-save-status.error {
+  color: #b42318;
+}
+
 .editor label,
 .editor-block,
 .strength-editor article,
@@ -777,6 +798,11 @@ h1 {
 }
 
 @media (max-width: 640px) {
+  .local-save-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
   .nav {
     padding-inline: 18px;
   }
