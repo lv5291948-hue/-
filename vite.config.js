@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 import { createHash } from 'node:crypto';
-import { mkdir, rename, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
 const mimeExtensions = {
@@ -84,8 +84,16 @@ function localContentSavePlugin() {
               return value;
             };
 
-            const content = await persistValue(payload.content);
             const contentPath = resolve(root, 'src/content.json');
+            const content = await persistValue(payload.content);
+            let savedVersion = 0;
+            try {
+              const currentContent = JSON.parse(await readFile(contentPath, 'utf8'));
+              savedVersion = Number(currentContent.version) || 0;
+            } catch {
+              savedVersion = 0;
+            }
+            content.version = Math.max(Number(content.version) || 0, savedVersion) + 1;
             const temporaryPath = `${contentPath}.tmp`;
             await writeFile(temporaryPath, `${JSON.stringify(content, null, 2)}\n`, 'utf8');
             await rename(temporaryPath, contentPath);

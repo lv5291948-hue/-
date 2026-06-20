@@ -93,6 +93,7 @@ function loadContent() {
   try {
     const saved = JSON.parse(localStorage.getItem('portfolio-content'));
     if (!saved) return initialContent;
+    if (Number(saved.version) !== Number(initialContent.version)) return initialContent;
     return normalizeContent(saved);
   } catch {
     return initialContent;
